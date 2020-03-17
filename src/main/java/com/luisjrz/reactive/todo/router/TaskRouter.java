@@ -16,6 +16,7 @@ public class TaskRouter {
 	public RouterFunction<ServerResponse> taskRoutes(TaskHandler taskHanlder){
 		return RouterFunctions.route(RequestPredicates.GET("/tasks"), taskHanlder::findAllTasks)
 				.andRoute(RequestPredicates.GET("/tasks/{id}"), taskHanlder::findTaskById)
-				.andRoute(RequestPredicates.POST("/tasks"), taskHanlder::saveTask);
+				.andRoute(RequestPredicates.POST("/tasks"), taskHanlder::saveTask)
+				.andRoute(RequestPredicates.DELETE("/tasks/{id}"), taskHanlder::delete);
 	}
 }

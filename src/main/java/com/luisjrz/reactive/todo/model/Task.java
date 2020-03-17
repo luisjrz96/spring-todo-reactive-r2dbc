@@ -1,9 +1,10 @@
 package com.luisjrz.reactive.todo.model;
 
-import java.util.Date;
-
+import java.time.LocalDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,8 +18,8 @@ public class Task {
 	private Long id;
 	private String title;
 	private String description;
-	private Date expectedDate;
+	@DateTimeFormat(iso = ISO.DATE, pattern = "yyyy-MM-dd")
+	private LocalDate expectedDate;
 	private boolean completed;
-	
 	
 }

@@ -33,17 +33,26 @@ public class TaskHandler {
 			return ServerResponse.notFound().build();
 		}
 		return taskService.findById(taskId).flatMap(task -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromObject(task)).switchIfEmpty(ServerResponse.notFound().build()));
+				.body(BodyInserters.fromValue(task)).switchIfEmpty(ServerResponse.notFound().build()));
 	}
 
 	public Mono<ServerResponse> saveTask(ServerRequest request) {
 		Mono<Task> taskToSave = request.bodyToMono(Task.class);
 		return taskToSave.flatMap(task -> {
 			return taskService.save(task)
-					.then(ServerResponse.
-							created(URI.create("/tasks/".concat(String.valueOf(task.getId()))))
-							.body(BodyInserters.fromObject(taskToSave), Task.class))
+					.then(ServerResponse.created(URI.create("/tasks/".concat(String.valueOf(task.getId()))))
+							.build())
 					.switchIfEmpty(ServerResponse.badRequest().build());
+		});
+	}
+
+	public Mono<ServerResponse> delete(ServerRequest request) {
+		String id = request.pathVariable("id");
+		Long taskId = Long.parseLong(id);
+		Mono<Task> taskToDelete = taskService.findById(taskId);
+		return taskToDelete.flatMap(task -> {
+			return taskService.delete(task).then(ServerResponse.ok().build())
+					.switchIfEmpty(ServerResponse.notFound().build());
 		});
 	}
 }
