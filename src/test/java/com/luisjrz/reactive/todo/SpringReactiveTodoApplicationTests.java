@@ -4,6 +4,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.Arrays;
+
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,7 @@ import com.luisjrz.reactive.todo.repository.TaskRepository;
 import com.luisjrz.reactive.todo.router.TaskRouter;
 import com.luisjrz.reactive.todo.services.TaskServiceImpl;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
@@ -67,6 +71,45 @@ public class SpringReactiveTodoApplicationTests {
 		.expectStatus().isOk();
 		
 		verify(taskRepository, times(1)).findById(task.getId());
+		
+	}
+	
+	@Test
+	public void findAllTasks() {
+		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDate.of(2019, 1, 1), true);
+		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDate.of(2019, 1, 2), true);
+		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDate.of(2019, 1, 3), true);
+		List<Task> tasks = Arrays.asList(task1,task2,task3);
+		when(taskRepository.findAll()).thenReturn(Flux.fromIterable(tasks));
+		
+		webClient.get()
+		.uri("/tasks")
+		.exchange()
+		.expectStatus().isOk();
+		
+		verify(taskRepository, times(1)).findAll();
+		
+	}
+	
+	@Test
+	public void deleteTaskTest() {
+		Task taskToDelete = new Task();
+		taskToDelete.setId(5L);
+		taskToDelete.setTitle("Test title");
+		taskToDelete.setDescription("Test description");
+		taskToDelete.setExpectedDate(LocalDate.of(2019, 1, 1));
+		taskToDelete.setCompleted(true);
+		
+		when(taskRepository.findById(taskToDelete.getId())).thenReturn(Mono.just(taskToDelete));
+		
+		when(taskRepository.delete(taskToDelete)).thenReturn(Mono.empty());
+		
+		webClient.delete().uri("/tasks/".concat(String.valueOf(taskToDelete.getId())))
+			.exchange()
+			.expectStatus()
+			.isOk();
+		verify(taskRepository, times(1)).findById(taskToDelete.getId());
+		verify(taskRepository, times(1)).delete(taskToDelete);
 		
 	}
 	
