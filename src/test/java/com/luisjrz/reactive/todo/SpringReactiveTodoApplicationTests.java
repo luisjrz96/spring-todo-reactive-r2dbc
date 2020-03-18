@@ -49,15 +49,56 @@ public class SpringReactiveTodoApplicationTests {
 				.expectedDate(LocalDate.of(2020, 03, 13))
 				.completed(false)
 				.build();
+		
 		when(taskRepository.save(task)).thenReturn(Mono.just(task));
 		
 		webClient.post()
 			.uri("/tasks")
 			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)
+			
 			.body(BodyInserters.fromValue(task))
-			.exchange().expectStatus().isCreated();
+			.exchange()
+			.expectStatus().isCreated()
+			.expectBody(Task.class);
 		
 		verify(taskRepository, times(1)).save(task);
+	}
+	
+	@Test
+	public void updateTaskTest() {
+		Task task = Task.builder()
+				.id(3L)
+				.title("Title test")
+				.description("Description test")
+				.expectedDate(LocalDate.of(2020, 03, 13))
+				.completed(false)
+				.build();
+		
+		Task taskToUpdate = Task.builder()
+				.id(3L)
+				.title("Title test")
+				.description("Description test")
+				.expectedDate(LocalDate.of(2020, 03, 13))
+				.completed(true)
+				.build();
+		
+		when(taskRepository.findById(task.getId())).thenReturn(Mono.just(task));
+		when(taskRepository.save(taskToUpdate)).thenReturn(Mono.just(taskToUpdate));
+		
+		webClient.put()
+			.uri("/tasks/".concat(task.getId().toString()))
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)
+			
+			.body(BodyInserters.fromValue(taskToUpdate))
+			.exchange()
+			.expectStatus().isCreated()
+			.expectBody(Task.class);
+		
+		verify(taskRepository, times(1)).findById(task.getId());
+		verify(taskRepository, times(1)).save(taskToUpdate);
+		
 	}
 	
 	@Test
