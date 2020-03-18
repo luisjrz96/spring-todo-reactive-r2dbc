@@ -40,11 +40,33 @@ public class TaskHandler {
 
 	public Mono<ServerResponse> saveTask(ServerRequest request) {
 		Mono<Task> taskToSave = request.bodyToMono(Task.class);
-		return taskToSave.flatMap(task -> {
-			return taskService.save(task)
-					.then(ServerResponse.created(URI.create("/tasks/".concat(String.valueOf(task.getId())))).build())
-					.switchIfEmpty(ServerResponse.badRequest().build());
-		});
+		return taskToSave.flatMap(t -> {
+			return taskService.save(t);
+		}).flatMap(t -> ServerResponse.created(URI.create("/tasks/".concat(t.getId().toString())))
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(t))
+			
+		);
+	}
+
+	public Mono<ServerResponse> updateTask(ServerRequest request) {
+		Mono<Task> taskDetails = request.bodyToMono(Task.class);
+		Long taskId = -1L;
+		try {
+			String id = request.pathVariable("id");
+			taskId = Long.parseLong(id);
+		} catch (NumberFormatException e) {
+			return ServerResponse.badRequest().build();
+		}
+		return taskService.findById(taskId).zipWith(taskDetails, (db, req) -> {
+			db.setTitle(req.getTitle());
+			db.setDescription(req.getDescription());
+			db.setExpectedDate(req.getExpectedDate());
+			db.setCompleted(req.isCompleted());
+			return db;
+		}).flatMap(t -> ServerResponse.created(URI.create("/tasks/".concat(String.valueOf(t.getId()))))
+				.contentType(MediaType.APPLICATION_JSON).body(taskService.save(t), Task.class))
+		.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
 	public Mono<ServerResponse> delete(ServerRequest request) {
