@@ -99,10 +99,11 @@ public class SpringReactiveTodoApplicationTests {
 		taskToDelete.setDescription("Test description");
 		taskToDelete.setExpectedDate(LocalDate.of(2019, 1, 1));
 		taskToDelete.setCompleted(true);
+		Mono<Void> monoVoid = Mono.empty();
 		
 		when(taskRepository.findById(taskToDelete.getId())).thenReturn(Mono.just(taskToDelete));
 		
-		when(taskRepository.delete(taskToDelete)).thenReturn(Mono.empty());
+		when(taskRepository.delete(taskToDelete)).thenReturn(monoVoid);
 		
 		webClient.delete().uri("/tasks/".concat(String.valueOf(taskToDelete.getId())))
 			.exchange()
@@ -111,6 +112,50 @@ public class SpringReactiveTodoApplicationTests {
 		verify(taskRepository, times(1)).findById(taskToDelete.getId());
 		verify(taskRepository, times(1)).delete(taskToDelete);
 		
+	}
+	
+	
+	@Test
+	public void deleteTaskTestBadRequest() {		
+		webClient.delete().uri("/tasks/".concat("INVALID_ID"))
+			.exchange()
+			.expectStatus()
+			.isBadRequest();
+	}
+	
+	
+	@Test
+	public void findTaskTestBadRequest() {		
+		webClient.get().uri("/tasks/".concat("INVALID_ID"))
+			.exchange()
+			.expectStatus()
+			.isBadRequest();
+	}
+	
+	
+	@Test
+	public void findTaskTestNotFound() {
+		Long taskId = 10L;
+		
+		when(taskRepository.findById(taskId)).thenReturn(Mono.empty());	
+		webClient.get().uri("/tasks/".concat(taskId.toString()))
+			.exchange()
+			.expectStatus()
+			.isNotFound();
+		
+		verify(taskRepository, times(1)).findById(taskId);
+	}
+	
+	@Test
+	public void deleteTaskTestNotFound() {
+		Long taskId = 10L;
+		when(taskRepository.findById(taskId)).thenReturn(Mono.empty());	
+		webClient.delete().uri("/tasks/".concat(taskId.toString()))
+			.exchange()
+			.expectStatus()
+			.isNotFound();
+		
+		verify(taskRepository, times(1)).findById(taskId);
 	}
 	
 	
