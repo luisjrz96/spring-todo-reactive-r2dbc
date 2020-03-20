@@ -20,12 +20,14 @@ public class Task {
 
 	@Id
 	private Long id;
-	@NotBlank
+	@NotBlank(message = "title is required")
 	private String title;
-	@NotBlank
+	@NotBlank(message = "description is required")
 	private String description;
+	@NotBlank(message = "date is required")
 	@DateTimeFormat(iso = ISO.DATE, pattern = "yyyy-MM-dd")
 	private LocalDate expectedDate;
-	private boolean completed;
+	private boolean completed=false;
+	
 	
 }
