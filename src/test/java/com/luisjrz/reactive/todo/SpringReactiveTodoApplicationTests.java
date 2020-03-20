@@ -25,12 +25,13 @@ import com.luisjrz.reactive.todo.model.Task;
 import com.luisjrz.reactive.todo.repository.TaskRepository;
 import com.luisjrz.reactive.todo.router.TaskRouter;
 import com.luisjrz.reactive.todo.services.TaskServiceImpl;
+import com.luisjrz.reactive.todo.services.ValidatorService;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(controllers =  { TaskRouter.class, TaskHandler.class, TaskRepository.class, TaskServiceImpl.class})
+@WebFluxTest(controllers =  { TaskRouter.class, TaskHandler.class, TaskRepository.class, TaskServiceImpl.class,ValidatorService.class})
 @Import(TaskHandler.class)
 public class SpringReactiveTodoApplicationTests {
 
