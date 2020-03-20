@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.luisjrz.reactive.todo.model.Task;
 import com.luisjrz.reactive.todo.services.TaskService;
+import com.luisjrz.reactive.todo.services.ValidatorService;
 
 import reactor.core.publisher.Mono;
 
@@ -19,6 +20,9 @@ public class TaskHandler {
 
 	@Autowired
 	private TaskService taskService;
+
+	@Autowired
+	private ValidatorService validator;
 
 	public Mono<ServerResponse> findAllTasks(ServerRequest request) {
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(taskService.findAll(), Task.class);
@@ -40,13 +44,16 @@ public class TaskHandler {
 
 	public Mono<ServerResponse> saveTask(ServerRequest request) {
 		Mono<Task> taskToSave = request.bodyToMono(Task.class);
-		return taskToSave.flatMap(t -> {
-			return taskService.save(t);
-		}).flatMap(t -> ServerResponse.created(URI.create("/tasks/".concat(t.getId().toString())))
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(t))
-			
-		);
+
+		return taskToSave.flatMap(task -> {
+			if (validator.hasErrors(task, Task.class.getName())) {
+				return ServerResponse.badRequest().body(BodyInserters.fromValue(validator.getErrors(task, Task.class.getName())));
+			}
+			return taskService.save(task)
+					.flatMap(t -> ServerResponse.created(URI.create("/tasks/".concat(t.getId().toString())))
+							.contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(t)));
+
+		});
 	}
 
 	public Mono<ServerResponse> updateTask(ServerRequest request) {
@@ -64,14 +71,17 @@ public class TaskHandler {
 			db.setExpectedDate(req.getExpectedDate());
 			db.setCompleted(req.isCompleted());
 			return db;
-		}).flatMap(t -> ServerResponse.created(URI.create("/tasks/".concat(String.valueOf(t.getId()))))
-				.contentType(MediaType.APPLICATION_JSON).body(taskService.save(t), Task.class))
-		.switchIfEmpty(ServerResponse.notFound().build());
+		}).flatMap(task -> {
+			if (validator.hasErrors(task, Task.class.getName())) {
+				return ServerResponse.badRequest().body(BodyInserters.fromValue(validator.getErrors(task, Task.class.getName())));
+			}
+			return ServerResponse.created(URI.create("/tasks/".concat(String.valueOf(task.getId()))))
+					.contentType(MediaType.APPLICATION_JSON).body(taskService.save(task), Task.class);
+		}).switchIfEmpty(ServerResponse.notFound().build());
 	}
 
 	public Mono<ServerResponse> delete(ServerRequest request) {
 		Long taskId = -1L;
-
 		try {
 			String id = request.pathVariable("id");
 			taskId = Long.parseLong(id);
