@@ -3,6 +3,7 @@ package com.luisjrz.reactive.todo.model;
 import java.time.LocalDate;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -24,7 +25,7 @@ public class Task {
 	private String title;
 	@NotBlank(message = "description is required")
 	private String description;
-	@NotBlank(message = "date is required")
+	@NotNull
 	@DateTimeFormat(iso = ISO.DATE, pattern = "yyyy-MM-dd")
 	private LocalDate expectedDate;
 	private boolean completed=false;
