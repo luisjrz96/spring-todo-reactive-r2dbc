@@ -13,9 +13,12 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
 
+
 @Table("tasks")
+@Generated
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Task {
 
