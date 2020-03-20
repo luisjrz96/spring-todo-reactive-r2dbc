@@ -67,6 +67,26 @@ public class SpringReactiveTodoApplicationTests {
 	}
 	
 	@Test
+	public void saveTaskConstraintTest() {
+		Task task = Task.builder()
+				.id(3L)
+				.title("")
+				.description("Description test")
+				.expectedDate(LocalDate.of(2020, 03, 13))
+				.completed(false)
+				.build();
+		
+		webClient.post()
+			.uri("/tasks")
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)
+			.body(BodyInserters.fromValue(task))
+			.exchange()
+			.expectStatus().isBadRequest();
+		
+	}
+	
+	@Test
 	public void updateTaskTest() {
 		Task task = Task.builder()
 				.id(3L)
@@ -99,6 +119,62 @@ public class SpringReactiveTodoApplicationTests {
 		
 		verify(taskRepository, times(1)).findById(task.getId());
 		verify(taskRepository, times(1)).save(taskToUpdate);
+		
+	}
+	
+	
+	@Test
+	public void updateTaskConstraintsTest() {
+		Task task = Task.builder()
+				.id(3L)
+				.title("Title test")
+				.description("Description test")
+				.expectedDate(LocalDate.of(2020, 03, 13))
+				.completed(false)
+				.build();
+		
+		Task taskToUpdate = Task.builder()
+				.id(3L)
+				.title("")
+				.description("Description test")
+				.expectedDate(LocalDate.of(2020, 03, 13))
+				.completed(true)
+				.build();
+		
+		when(taskRepository.findById(task.getId())).thenReturn(Mono.just(task));
+		
+		webClient.put()
+			.uri("/tasks/".concat(task.getId().toString()))
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)	
+			.body(BodyInserters.fromValue(taskToUpdate))
+			.exchange()
+			.expectStatus().isBadRequest();
+		
+		verify(taskRepository, times(1)).findById(task.getId());
+		
+	}
+	
+	
+	@Test
+	public void updateTaskInvalidIdTest() {
+		String INVALID_ID = "INVALID_ID";
+		Task taskToUpdate = Task.builder()
+				.id(3L)
+				.title("")
+				.description("Description test")
+				.expectedDate(LocalDate.of(2020, 03, 13))
+				.completed(true)
+				.build();
+	
+		webClient.put()
+			.uri("/tasks/".concat(INVALID_ID))
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)	
+			.body(BodyInserters.fromValue(taskToUpdate))
+			.exchange()
+			.expectStatus().isBadRequest();
+		
 		
 	}
 	
