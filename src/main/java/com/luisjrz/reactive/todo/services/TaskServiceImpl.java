@@ -1,5 +1,7 @@
 package com.luisjrz.reactive.todo.services;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,12 @@ public class TaskServiceImpl implements TaskService {
 	public Mono<Void> delete(Task task) {
 		return taskRepository.delete(task);
 	}
+
+	@Override
+	public Flux<Task> findBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+		return taskRepository.findBetweenDates(startDate, endDate);
+	}
+
 	
 	
 }
