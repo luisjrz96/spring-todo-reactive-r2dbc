@@ -1,6 +1,7 @@
 package com.luisjrz.reactive.todo.handler;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -28,6 +29,46 @@ public class TaskHandler {
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(taskService.findAll(), Task.class);
 	}
 
+	public Mono<ServerResponse> findAllTasksBetweenDates(ServerRequest request) {
+		Integer startYear = (request.queryParam("startYear").isPresent())
+				? Integer.parseInt(request.queryParam("startYear").get())
+				: 0;
+		Integer startMonth = (request.queryParam("startMonth").isPresent())
+				? Integer.parseInt(request.queryParam("startMonth").get())
+				: 1;
+		Integer startDay = (request.queryParam("startDay").isPresent())
+				? Integer.parseInt(request.queryParam("startDay").get())
+				: 1;
+		Integer startHour = (request.queryParam("startHour").isPresent())
+				? Integer.parseInt(request.queryParam("startHour").get())
+				: 0;
+		Integer startMinute = (request.queryParam("startMinute").isPresent())
+				? Integer.parseInt(request.queryParam("startMinute").get())
+				: 0;
+
+		Integer endYear = (request.queryParam("endYear").isPresent())
+				? Integer.parseInt(request.queryParam("endYear").get())
+				: 0;
+		Integer endMonth = (request.queryParam("endMonth").isPresent())
+				? Integer.parseInt(request.queryParam("endMonth").get())
+				: 1;
+		Integer endDay = (request.queryParam("endDay").isPresent())
+				? Integer.parseInt(request.queryParam("endDay").get())
+				: 1;
+		Integer endHour = (request.queryParam("endHour").isPresent())
+				? Integer.parseInt(request.queryParam("endHour").get())
+				: 0;
+		Integer endMinute = (request.queryParam("endMinute").isPresent())
+				? Integer.parseInt(request.queryParam("endMinute").get())
+				: 0;
+
+		LocalDateTime startDate = LocalDateTime.of(startYear, startMonth, startDay, startHour, startMinute);
+		LocalDateTime endDate = LocalDateTime.of(endYear, endMonth, endDay, endHour, endMinute);
+
+		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+				.body(taskService.findBetweenDates(startDate, endDate), Task.class);
+	}
+
 	public Mono<ServerResponse> findTaskById(ServerRequest request) {
 		Long taskId = -1L;
 		try {
@@ -47,7 +88,8 @@ public class TaskHandler {
 
 		return taskToSave.flatMap(task -> {
 			if (validator.hasErrors(task, Task.class.getName())) {
-				return ServerResponse.badRequest().body(BodyInserters.fromValue(validator.getErrors(task, Task.class.getName())));
+				return ServerResponse.badRequest()
+						.body(BodyInserters.fromValue(validator.getErrors(task, Task.class.getName())));
 			}
 			task.setCompleted(false);
 			return taskService.save(task)
@@ -74,7 +116,8 @@ public class TaskHandler {
 			return db;
 		}).flatMap(task -> {
 			if (validator.hasErrors(task, Task.class.getName())) {
-				return ServerResponse.badRequest().body(BodyInserters.fromValue(validator.getErrors(task, Task.class.getName())));
+				return ServerResponse.badRequest()
+						.body(BodyInserters.fromValue(validator.getErrors(task, Task.class.getName())));
 			}
 			return ServerResponse.created(URI.create("/tasks/".concat(String.valueOf(task.getId()))))
 					.contentType(MediaType.APPLICATION_JSON).body(taskService.save(task), Task.class);

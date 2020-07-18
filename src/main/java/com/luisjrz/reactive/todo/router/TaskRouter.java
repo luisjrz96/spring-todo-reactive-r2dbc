@@ -13,11 +13,12 @@ import com.luisjrz.reactive.todo.handler.TaskHandler;
 public class TaskRouter {
 
 	@Bean
-	public RouterFunction<ServerResponse> taskRoutes(TaskHandler taskHanlder){
-		return RouterFunctions.route(RequestPredicates.GET("/tasks"), taskHanlder::findAllTasks)
-				.andRoute(RequestPredicates.POST("/tasks"), taskHanlder::saveTask)
-				.andRoute(RequestPredicates.PUT("/tasks/{id}"), taskHanlder::updateTask)
-				.andRoute(RequestPredicates.GET("/tasks/{id}"), taskHanlder::findTaskById)
-				.andRoute(RequestPredicates.DELETE("/tasks/{id}"), taskHanlder::delete);
+	public RouterFunction<ServerResponse> taskRoutes(TaskHandler taskHandler){
+		return RouterFunctions.route(RequestPredicates.GET("/tasks"), taskHandler::findAllTasks)
+                .andRoute(RequestPredicates.GET("/tasks/date"), taskHandler::findAllTasksBetweenDates)
+				.andRoute(RequestPredicates.POST("/tasks"), taskHandler::saveTask)
+				.andRoute(RequestPredicates.PUT("/tasks/{id}"), taskHandler::updateTask)
+				.andRoute(RequestPredicates.GET("/tasks/{id}"), taskHandler::findTaskById)
+				.andRoute(RequestPredicates.DELETE("/tasks/{id}"), taskHandler::delete);
 	}
 }
