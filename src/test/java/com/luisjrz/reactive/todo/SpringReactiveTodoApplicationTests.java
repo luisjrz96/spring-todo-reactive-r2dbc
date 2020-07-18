@@ -31,184 +31,118 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(controllers =  { TaskRouter.class, TaskHandler.class, TaskRepository.class, TaskServiceImpl.class,ValidatorService.class})
+@WebFluxTest(controllers = { TaskRouter.class, TaskHandler.class, TaskRepository.class, TaskServiceImpl.class,
+		ValidatorService.class })
 @Import(TaskHandler.class)
 public class SpringReactiveTodoApplicationTests {
 
 	@MockBean
 	private TaskRepository taskRepository;
-	
+
 	@Autowired
 	private WebTestClient webClient;
-	
+
 	@Test
 	public void saveTaskTest() {
-		Task task = Task.builder()
-				.id(3L)
-				.title("Title test")
-				.description("Description test")
-				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
-				.completed(false)
-				.build();
-		
+		Task task = Task.builder().id(3L).title("Title test").description("Description test")
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(false).build();
+
 		when(taskRepository.save(task)).thenReturn(Mono.just(task));
-		
-		webClient.post()
-			.uri("/tasks")
-			.contentType(MediaType.APPLICATION_JSON)
-			.accept(MediaType.APPLICATION_JSON)
-			
-			.body(BodyInserters.fromValue(task))
-			.exchange()
-			.expectStatus().isCreated()
-			.expectBody(Task.class);
-		
+
+		webClient.post().uri("/tasks").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+
+				.body(BodyInserters.fromValue(task)).exchange().expectStatus().isCreated().expectBody(Task.class);
+
 		verify(taskRepository, times(1)).save(task);
 	}
-	
+
 	@Test
 	public void saveTaskConstraintTest() {
-		Task task = Task.builder()
-				.id(3L)
-				.title("")
-				.description("Description test")
-				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
-				.completed(false)
-				.build();
-		
-		webClient.post()
-			.uri("/tasks")
-			.contentType(MediaType.APPLICATION_JSON)
-			.accept(MediaType.APPLICATION_JSON)
-			.body(BodyInserters.fromValue(task))
-			.exchange()
-			.expectStatus().isBadRequest();
-		
+		Task task = Task.builder().id(3L).title("").description("Description test")
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(false).build();
+
+		webClient.post().uri("/tasks").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(task)).exchange().expectStatus().isBadRequest();
+
 	}
-	
+
 	@Test
 	public void updateTaskTest() {
-		Task task = Task.builder()
-				.id(3L)
-				.title("Title test")
-				.description("Description test")
-				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
-				.completed(false)
-				.build();
-		
-		Task taskToUpdate = Task.builder()
-				.id(3L)
-				.title("Title test")
-				.description("Description test")
-				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
-				.completed(true)
-				.build();
-		
+		Task task = Task.builder().id(3L).title("Title test").description("Description test")
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(false).build();
+
+		Task taskToUpdate = Task.builder().id(3L).title("Title test").description("Description test")
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(true).build();
+
 		when(taskRepository.findById(task.getId())).thenReturn(Mono.just(task));
 		when(taskRepository.save(taskToUpdate)).thenReturn(Mono.just(taskToUpdate));
-		
-		webClient.put()
-			.uri("/tasks/".concat(task.getId().toString()))
-			.contentType(MediaType.APPLICATION_JSON)
-			.accept(MediaType.APPLICATION_JSON)
-			
-			.body(BodyInserters.fromValue(taskToUpdate))
-			.exchange()
-			.expectStatus().isCreated()
-			.expectBody(Task.class);
-		
+
+		webClient.put().uri("/tasks/".concat(task.getId().toString())).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+
+				.body(BodyInserters.fromValue(taskToUpdate)).exchange().expectStatus().isCreated()
+				.expectBody(Task.class);
+
 		verify(taskRepository, times(1)).findById(task.getId());
 		verify(taskRepository, times(1)).save(taskToUpdate);
-		
+
 	}
-	
-	
+
 	@Test
 	public void updateTaskConstraintsTest() {
-		Task task = Task.builder()
-				.id(3L)
-				.title("Title test")
-				.description("Description test")
-				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
-				.completed(false)
-				.build();
-		
-		Task taskToUpdate = Task.builder()
-				.id(3L)
-				.title("")
-				.description("Description test")
-				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
-				.completed(true)
-				.build();
-		
+		Task task = Task.builder().id(3L).title("Title test").description("Description test")
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(false).build();
+
+		Task taskToUpdate = Task.builder().id(3L).title("").description("Description test")
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(true).build();
+
 		when(taskRepository.findById(task.getId())).thenReturn(Mono.just(task));
-		
-		webClient.put()
-			.uri("/tasks/".concat(task.getId().toString()))
-			.contentType(MediaType.APPLICATION_JSON)
-			.accept(MediaType.APPLICATION_JSON)	
-			.body(BodyInserters.fromValue(taskToUpdate))
-			.exchange()
-			.expectStatus().isBadRequest();
-		
+
+		webClient.put().uri("/tasks/".concat(task.getId().toString())).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(taskToUpdate)).exchange()
+				.expectStatus().isBadRequest();
+
 		verify(taskRepository, times(1)).findById(task.getId());
-		
+
 	}
-	
-	
+
 	@Test
 	public void updateTaskInvalidIdTest() {
 		String INVALID_ID = "INVALID_ID";
-		Task taskToUpdate = Task.builder()
-				.id(3L)
-				.title("")
-				.description("Description test")
-				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
-				.completed(true)
-				.build();
-	
-		webClient.put()
-			.uri("/tasks/".concat(INVALID_ID))
-			.contentType(MediaType.APPLICATION_JSON)
-			.accept(MediaType.APPLICATION_JSON)	
-			.body(BodyInserters.fromValue(taskToUpdate))
-			.exchange()
-			.expectStatus().isBadRequest();
-		
-		
+		Task taskToUpdate = Task.builder().id(3L).title("").description("Description test")
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(true).build();
+
+		webClient.put().uri("/tasks/".concat(INVALID_ID)).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(taskToUpdate)).exchange()
+				.expectStatus().isBadRequest();
+
 	}
-	
+
 	@Test
 	public void findTaskByIdTest() {
 		Task task = new Task(4L, "FindById test", "Description test", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
 		when(taskRepository.findById(task.getId())).thenReturn(Mono.just(task));
-		
-		webClient.get()
-		.uri("/tasks/".concat(String.valueOf(task.getId())))
-		.exchange()
-		.expectStatus().isOk();
-		
+
+		webClient.get().uri("/tasks/".concat(String.valueOf(task.getId()))).exchange().expectStatus().isOk();
+
 		verify(taskRepository, times(1)).findById(task.getId());
-		
+
 	}
-	
+
 	@Test
 	public void findAllTasks() {
 		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
 		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 2, 0, 0, 0), true);
 		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDateTime.of(2019, 1, 3, 0, 0, 0), true);
-		List<Task> tasks = Arrays.asList(task1,task2,task3);
+		List<Task> tasks = Arrays.asList(task1, task2, task3);
 		when(taskRepository.findAll()).thenReturn(Flux.fromIterable(tasks));
-		
-		webClient.get()
-		.uri("/tasks")
-		.exchange()
-		.expectStatus().isOk();
-		
+
+		webClient.get().uri("/tasks").exchange().expectStatus().isOk();
+
 		verify(taskRepository, times(1)).findAll();
-		
+
 	}
-	
+
 	@Test
 	public void deleteTaskTest() {
 		Task taskToDelete = new Task();
@@ -218,66 +152,88 @@ public class SpringReactiveTodoApplicationTests {
 		taskToDelete.setDateToComplete(LocalDateTime.of(2019, 1, 1, 0, 0, 0));
 		taskToDelete.setCompleted(true);
 		Mono<Void> monoVoid = Mono.empty();
-		
+
 		when(taskRepository.findById(taskToDelete.getId())).thenReturn(Mono.just(taskToDelete));
-		
+
 		when(taskRepository.delete(taskToDelete)).thenReturn(monoVoid);
-		
-		webClient.delete().uri("/tasks/".concat(String.valueOf(taskToDelete.getId())))
-			.exchange()
-			.expectStatus()
-			.isOk();
+
+		webClient.delete().uri("/tasks/".concat(String.valueOf(taskToDelete.getId()))).exchange().expectStatus().isOk();
 		verify(taskRepository, times(1)).findById(taskToDelete.getId());
 		verify(taskRepository, times(1)).delete(taskToDelete);
-		
+
 	}
-	
-	
+
 	@Test
-	public void deleteTaskTestBadRequest() {		
-		webClient.delete().uri("/tasks/".concat("INVALID_ID"))
-			.exchange()
-			.expectStatus()
-			.isBadRequest();
+	public void deleteTaskTestBadRequest() {
+		webClient.delete().uri("/tasks/".concat("INVALID_ID")).exchange().expectStatus().isBadRequest();
 	}
-	
-	
+
 	@Test
-	public void findTaskTestBadRequest() {		
-		webClient.get().uri("/tasks/".concat("INVALID_ID"))
-			.exchange()
-			.expectStatus()
-			.isBadRequest();
+	public void findTaskTestBadRequest() {
+		webClient.get().uri("/tasks/".concat("INVALID_ID")).exchange().expectStatus().isBadRequest();
 	}
-	
-	
+
 	@Test
 	public void findTaskTestNotFound() {
 		Long taskId = 10L;
-		
-		when(taskRepository.findById(taskId)).thenReturn(Mono.empty());	
-		webClient.get().uri("/tasks/".concat(taskId.toString()))
-			.exchange()
-			.expectStatus()
-			.isNotFound();
-		
+
+		when(taskRepository.findById(taskId)).thenReturn(Mono.empty());
+		webClient.get().uri("/tasks/".concat(taskId.toString())).exchange().expectStatus().isNotFound();
+
 		verify(taskRepository, times(1)).findById(taskId);
 	}
-	
+
 	@Test
 	public void deleteTaskTestNotFound() {
 		Long taskId = 10L;
-		when(taskRepository.findById(taskId)).thenReturn(Mono.empty());	
-		webClient.delete().uri("/tasks/".concat(taskId.toString()))
-			.exchange()
-			.expectStatus()
-			.isNotFound();
-		
+		when(taskRepository.findById(taskId)).thenReturn(Mono.empty());
+		webClient.delete().uri("/tasks/".concat(taskId.toString())).exchange().expectStatus().isNotFound();
+
 		verify(taskRepository, times(1)).findById(taskId);
 	}
-	
-	
-	
-	
+
+	@Test
+	public void findAllTaskBetweenDates() {
+		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDateTime.of(2019, 1, 1, 1, 15, 0),
+				true);
+		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 2, 1, 30, 0),
+				true);
+		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDateTime.of(2019, 1, 3, 1, 45, 0),
+				true);
+		List<Task> tasks = Arrays.asList(task1, task2, task3);
+		LocalDateTime startDate = LocalDateTime.of(2019, 1, 1, 1, 0);
+		LocalDateTime endDate = LocalDateTime.of(2019, 1, 1, 2, 0);
+		when(taskRepository.findBetweenDates(startDate, endDate)).thenReturn(Flux.fromIterable(tasks));
+
+		String uriToTest = String.format(
+				"?startYear=%d&startMonth=%d&startDay=%d&startHour=%d&startMinute=%d"
+						+ "&endYear=%d&endMonth=%d&endDay=%d&endHour=%d&endMinute=%d",
+				startDate.getYear(), startDate.getMonthValue(), startDate.getDayOfMonth(), startDate.getHour(),
+				startDate.getMinute(), endDate.getYear(), endDate.getMonthValue(), endDate.getDayOfMonth(),
+				endDate.getHour(), endDate.getMinute());
+
+		webClient.get().uri("/tasks/date".concat(uriToTest)).exchange().expectStatus().isOk();
+
+		verify(taskRepository, times(1)).findBetweenDates(startDate, endDate);
+
+	}
+
+	@Test
+	public void findAllTaskBetweenDatesOnlyYear() {
+		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDateTime.of(2018, 1, 1, 0, 0, 0), true);
+		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
+		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDateTime.of(2020, 1, 1, 0, 0, 0),
+				false);
+		List<Task> tasks = Arrays.asList(task1, task2, task3);
+		LocalDateTime startDate = LocalDateTime.of(2018, 1, 1, 0, 0);
+		LocalDateTime endDate = LocalDateTime.of(2020, 1, 1, 0, 0);
+		when(taskRepository.findBetweenDates(startDate, endDate)).thenReturn(Flux.fromIterable(tasks));
+
+		String uriToTest = String.format("?startYear=%d&endYear=%d", startDate.getYear(), endDate.getYear());
+
+		webClient.get().uri("/tasks/date".concat(uriToTest)).exchange().expectStatus().isOk();
+		verify(taskRepository, times(1)).findBetweenDates(startDate, endDate);
+
+	}
 
 }
