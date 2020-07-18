@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+
+  todo-app:
+    image: reactive-todo-api:1.0
+    depends_on:
+      - mysql
+    ports:
+      - '8080:8080'
+    environment:
+      TODO_APP_ACTIVE_PROFILE: dev
+      R2DBC_DEV_LOGGING_LVL: DEBUG
+      MYSQL_DEV_URI: r2dbc:pool:mysql://mysql:3306/todo
+      MYSQL_DEV_USER: root
+      MYSQL_DEV_PASSWORD: password
+
