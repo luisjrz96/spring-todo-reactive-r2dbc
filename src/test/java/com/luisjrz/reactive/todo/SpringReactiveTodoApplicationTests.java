@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Arrays;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,7 +47,7 @@ public class SpringReactiveTodoApplicationTests {
 				.id(3L)
 				.title("Title test")
 				.description("Description test")
-				.expectedDate(LocalDate.of(2020, 03, 13))
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
 				.completed(false)
 				.build();
 		
@@ -72,7 +72,7 @@ public class SpringReactiveTodoApplicationTests {
 				.id(3L)
 				.title("")
 				.description("Description test")
-				.expectedDate(LocalDate.of(2020, 03, 13))
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
 				.completed(false)
 				.build();
 		
@@ -92,7 +92,7 @@ public class SpringReactiveTodoApplicationTests {
 				.id(3L)
 				.title("Title test")
 				.description("Description test")
-				.expectedDate(LocalDate.of(2020, 03, 13))
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
 				.completed(false)
 				.build();
 		
@@ -100,7 +100,7 @@ public class SpringReactiveTodoApplicationTests {
 				.id(3L)
 				.title("Title test")
 				.description("Description test")
-				.expectedDate(LocalDate.of(2020, 03, 13))
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
 				.completed(true)
 				.build();
 		
@@ -129,7 +129,7 @@ public class SpringReactiveTodoApplicationTests {
 				.id(3L)
 				.title("Title test")
 				.description("Description test")
-				.expectedDate(LocalDate.of(2020, 03, 13))
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
 				.completed(false)
 				.build();
 		
@@ -137,7 +137,7 @@ public class SpringReactiveTodoApplicationTests {
 				.id(3L)
 				.title("")
 				.description("Description test")
-				.expectedDate(LocalDate.of(2020, 03, 13))
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
 				.completed(true)
 				.build();
 		
@@ -163,7 +163,7 @@ public class SpringReactiveTodoApplicationTests {
 				.id(3L)
 				.title("")
 				.description("Description test")
-				.expectedDate(LocalDate.of(2020, 03, 13))
+				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0))
 				.completed(true)
 				.build();
 	
@@ -180,7 +180,7 @@ public class SpringReactiveTodoApplicationTests {
 	
 	@Test
 	public void findTaskByIdTest() {
-		Task task = new Task(4L, "FindById test", "Description test", LocalDate.of(2019, 1, 1), true);
+		Task task = new Task(4L, "FindById test", "Description test", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
 		when(taskRepository.findById(task.getId())).thenReturn(Mono.just(task));
 		
 		webClient.get()
@@ -194,9 +194,9 @@ public class SpringReactiveTodoApplicationTests {
 	
 	@Test
 	public void findAllTasks() {
-		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDate.of(2019, 1, 1), true);
-		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDate.of(2019, 1, 2), true);
-		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDate.of(2019, 1, 3), true);
+		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
+		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 2, 0, 0, 0), true);
+		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDateTime.of(2019, 1, 3, 0, 0, 0), true);
 		List<Task> tasks = Arrays.asList(task1,task2,task3);
 		when(taskRepository.findAll()).thenReturn(Flux.fromIterable(tasks));
 		
@@ -215,7 +215,7 @@ public class SpringReactiveTodoApplicationTests {
 		taskToDelete.setId(5L);
 		taskToDelete.setTitle("Test title");
 		taskToDelete.setDescription("Test description");
-		taskToDelete.setExpectedDate(LocalDate.of(2019, 1, 1));
+		taskToDelete.setDateToComplete(LocalDateTime.of(2019, 1, 1, 0, 0, 0));
 		taskToDelete.setCompleted(true);
 		Mono<Void> monoVoid = Mono.empty();
 		
