@@ -10,7 +10,7 @@ import com.luisjrz.reactive.todo.model.Task;
 import reactor.core.publisher.Flux;
 
 public interface TaskRepository extends R2dbcRepository<Task, Long> {
-	
+
 	@Query("SELECT * FROM tasks t WHERE t.date_to_complete BETWEEN :startDate AND :endDate")
 	Flux<Task> findBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
 
