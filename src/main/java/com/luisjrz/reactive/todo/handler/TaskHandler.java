@@ -49,6 +49,7 @@ public class TaskHandler {
 			if (validator.hasErrors(task, Task.class.getName())) {
 				return ServerResponse.badRequest().body(BodyInserters.fromValue(validator.getErrors(task, Task.class.getName())));
 			}
+			task.setCompleted(false);
 			return taskService.save(task)
 					.flatMap(t -> ServerResponse.created(URI.create("/tasks/".concat(t.getId().toString())))
 							.contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(t)));
@@ -68,7 +69,7 @@ public class TaskHandler {
 		return taskService.findById(taskId).zipWith(taskDetails, (db, req) -> {
 			db.setTitle(req.getTitle());
 			db.setDescription(req.getDescription());
-			db.setExpectedDate(req.getExpectedDate());
+			db.setDateToComplete(req.getDateToComplete());
 			db.setCompleted(req.isCompleted());
 			return db;
 		}).flatMap(task -> {
