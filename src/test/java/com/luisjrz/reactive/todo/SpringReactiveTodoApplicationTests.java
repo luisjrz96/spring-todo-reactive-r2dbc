@@ -6,34 +6,22 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Arrays;
-
 import java.time.LocalDateTime;
-
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
-
-import com.luisjrz.reactive.todo.handler.TaskHandler;
 import com.luisjrz.reactive.todo.model.Task;
 import com.luisjrz.reactive.todo.repository.TaskRepository;
-import com.luisjrz.reactive.todo.router.TaskRouter;
-import com.luisjrz.reactive.todo.services.TaskServiceImpl;
-import com.luisjrz.reactive.todo.services.ValidatorService;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@ExtendWith(SpringExtension.class)
-@WebFluxTest(controllers = { TaskRouter.class, TaskHandler.class, TaskRepository.class, TaskServiceImpl.class,
-		ValidatorService.class })
-@Import(TaskHandler.class)
+@SpringBootTest
+@AutoConfigureWebTestClient
 public class SpringReactiveTodoApplicationTests {
 
 	@MockBean
