@@ -25,6 +25,8 @@ public class Task {
 
 	@Id
 	private Long id;
+	@NotBlank(message = "user is required")
+	private String user;
 	@NotBlank(message = "title is required")
 	private String title;
 	@NotBlank(message = "description is required")

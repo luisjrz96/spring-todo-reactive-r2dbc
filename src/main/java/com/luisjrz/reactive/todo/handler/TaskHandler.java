@@ -113,6 +113,7 @@ public class TaskHandler {
 			db.setDescription(req.getDescription());
 			db.setDateToComplete(req.getDateToComplete());
 			db.setCompleted(req.isCompleted());
+			db.setUser(db.getUser()); //Not able to change the user
 			return db;
 		}).flatMap(task -> {
 			if (validator.hasErrors(task, Task.class.getName())) {

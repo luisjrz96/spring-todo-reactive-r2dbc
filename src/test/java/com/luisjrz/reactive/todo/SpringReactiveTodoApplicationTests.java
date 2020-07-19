@@ -45,6 +45,7 @@ public class SpringReactiveTodoApplicationTests {
 	@Test
 	public void saveTaskTest() {
 		Task task = Task.builder().id(3L).title("Title test").description("Description test")
+				.user("Foo")
 				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(false).build();
 
 		when(taskRepository.save(task)).thenReturn(Mono.just(task));
@@ -68,10 +69,12 @@ public class SpringReactiveTodoApplicationTests {
 
 	@Test
 	public void updateTaskTest() {
-		Task task = Task.builder().id(3L).title("Title test").description("Description test")
+		Task task = Task.builder().id(10L).title("Title test").description("Description test")
+				.user("Foo")
 				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(false).build();
 
-		Task taskToUpdate = Task.builder().id(3L).title("Title test").description("Description test")
+		Task taskToUpdate = Task.builder().id(10L).title("Title test").description("Description test")
+				.user("Foo")
 				.dateToComplete(LocalDateTime.of(2020, 03, 13, 0, 0, 0)).completed(true).build();
 
 		when(taskRepository.findById(task.getId())).thenReturn(Mono.just(task));
@@ -120,7 +123,7 @@ public class SpringReactiveTodoApplicationTests {
 
 	@Test
 	public void findTaskByIdTest() {
-		Task task = new Task(4L, "FindById test", "Description test", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
+		Task task = new Task(4L, "Foo", "FindById test", "Description test", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
 		when(taskRepository.findById(task.getId())).thenReturn(Mono.just(task));
 
 		webClient.get().uri("/tasks/".concat(String.valueOf(task.getId()))).exchange().expectStatus().isOk();
@@ -131,9 +134,9 @@ public class SpringReactiveTodoApplicationTests {
 
 	@Test
 	public void findAllTasks() {
-		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
-		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 2, 0, 0, 0), true);
-		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDateTime.of(2019, 1, 3, 0, 0, 0), true);
+		Task task1 = new Task(1L, "Foo", "FindById test 1", "Description test 1", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
+		Task task2 = new Task(2L, "Bar", "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 2, 0, 0, 0), true);
+		Task task3 = new Task(3L, "Do", "FindById test 3", "Description test 3", LocalDateTime.of(2019, 1, 3, 0, 0, 0), true);
 		List<Task> tasks = Arrays.asList(task1, task2, task3);
 		when(taskRepository.findAll()).thenReturn(Flux.fromIterable(tasks));
 
@@ -194,11 +197,11 @@ public class SpringReactiveTodoApplicationTests {
 
 	@Test
 	public void findAllTaskBetweenDates() {
-		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDateTime.of(2019, 1, 1, 1, 15, 0),
+		Task task1 = new Task(1L, "Foo", "FindById test 1", "Description test 1", LocalDateTime.of(2019, 1, 1, 1, 15, 0),
 				true);
-		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 2, 1, 30, 0),
+		Task task2 = new Task(2L, "Bar", "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 2, 1, 30, 0),
 				true);
-		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDateTime.of(2019, 1, 3, 1, 45, 0),
+		Task task3 = new Task(3L, "Do", "FindById test 3", "Description test 3", LocalDateTime.of(2019, 1, 3, 1, 45, 0),
 				true);
 		List<Task> tasks = Arrays.asList(task1, task2, task3);
 		LocalDateTime startDate = LocalDateTime.of(2019, 1, 1, 1, 0);
@@ -220,9 +223,9 @@ public class SpringReactiveTodoApplicationTests {
 
 	@Test
 	public void findAllTaskBetweenDatesOnlyYear() {
-		Task task1 = new Task(1L, "FindById test 1", "Description test 1", LocalDateTime.of(2018, 1, 1, 0, 0, 0), true);
-		Task task2 = new Task(2L, "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
-		Task task3 = new Task(3L, "FindById test 3", "Description test 3", LocalDateTime.of(2020, 1, 1, 0, 0, 0),
+		Task task1 = new Task(1L, "Foo", "FindById test 1", "Description test 1", LocalDateTime.of(2018, 1, 1, 0, 0, 0), true);
+		Task task2 = new Task(2L, "Bar", "FindById test 2", "Description test 2", LocalDateTime.of(2019, 1, 1, 0, 0, 0), true);
+		Task task3 = new Task(3L, "Do", "FindById test 3", "Description test 3", LocalDateTime.of(2020, 1, 1, 0, 0, 0),
 				false);
 		List<Task> tasks = Arrays.asList(task1, task2, task3);
 		LocalDateTime startDate = LocalDateTime.of(2018, 1, 1, 0, 0);
