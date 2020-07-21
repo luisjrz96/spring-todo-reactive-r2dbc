@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import com.luisjrz.reactive.todo.model.Task;
 import com.luisjrz.reactive.todo.services.TaskService;
 import com.luisjrz.reactive.todo.services.ValidatorService;
-
 import reactor.core.publisher.Mono;
 
 @Component
@@ -92,6 +91,7 @@ public class TaskHandler {
 						.body(BodyInserters.fromValue(validator.getErrors(task, Task.class.getName())));
 			}
 			task.setCompleted(false);
+			task.setDateToComplete(task.getDateToComplete().withSecond(0));
 			return taskService.save(task)
 					.flatMap(t -> ServerResponse.created(URI.create("/tasks/".concat(t.getId().toString())))
 							.contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(t)));
@@ -111,7 +111,7 @@ public class TaskHandler {
 		return taskService.findById(taskId).zipWith(taskDetails, (db, req) -> {
 			db.setTitle(req.getTitle());
 			db.setDescription(req.getDescription());
-			db.setDateToComplete(req.getDateToComplete());
+			db.setDateToComplete(req.getDateToComplete().withSecond(0));
 			db.setCompleted(req.isCompleted());
 			db.setUser(db.getUser()); //Not able to change the user
 			return db;
@@ -138,4 +138,5 @@ public class TaskHandler {
 		}).switchIfEmpty(ServerResponse.notFound().build());
 
 	}
+
 }
